@@ -1,7 +1,7 @@
-library(corrplot)
+library(ggplot2)
 source("https://github.com/KaroRonty/ShillerGoyalDataRetriever/raw/master/ShillerGoyalDataRetriever.r")
 
-current_cape <- 31.89
+current_cape <- 30.7
 
 # Return calculation for the next i years
 returns <- as.data.frame(matrix(nrow = 1774))
@@ -37,13 +37,25 @@ for(i in 1:20){
 write.csv(correlations_manual, "cape_correlations.csv")
 
 # Combine the most accurate data for modeling and model
-model_data <- as.data.frame(cbind(capes[, 10], returns[, 12]))
-colnames(model_data) <- c("cape_10", "returns_12")
+model_data <- as.data.frame(cbind(capes[, 10], returns[, 10]))
+colnames(model_data) <- c("cape_10", "returns_10")
 lm <- lm(returns_12 ~ cape_10, model_data)
 
+# Ready the CAPE value for forecasting
 current_cape <- as.data.frame(current_cape)
 colnames(current_cape) <- "cape_10"
 
 # Print the confidence and prediction intervals
 predict(lm, newdata = current_cape, interval = "confidence") - 1
 predict(lm, newdata = current_cape, interval = "predict") - 1
+
+# Remove NA rows
+model_data <- na.omit(model_data)
+
+# Plot
+ggplot(model_data, aes(x = cape_10, y = returns_10)) +
+  geom_point() + ggtitle("CAPE vs returns") + xlab("CAPE") + ylab("Annualized 10-year returns") +
+  geom_smooth(method = "glm", formula = y ~ x,
+              method.args = list(family = gaussian(link = "log"))) +
+  annotate("text", x = 37, y = 1.15, label = paste("italic(R) ^ 2 ==",
+                                                   round(summary(lm)$r.squared, 3)), parse = T)
