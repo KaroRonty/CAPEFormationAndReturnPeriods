@@ -39,7 +39,7 @@ write.csv(correlations_manual, "cape_correlations.csv")
 # Combine the most accurate data for modeling and model
 model_data <- as.data.frame(cbind(capes[, 10], returns[, 10]))
 colnames(model_data) <- c("cape_10", "returns_10")
-lm <- lm(returns_12 ~ cape_10, model_data)
+lm <- lm(returns_10 ~ cape_10, model_data)
 
 # Ready the CAPE value for forecasting
 current_cape <- as.data.frame(current_cape)
