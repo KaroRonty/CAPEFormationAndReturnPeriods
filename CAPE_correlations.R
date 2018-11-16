@@ -4,7 +4,7 @@ source("https://github.com/KaroRonty/ShillerGoyalDataRetriever/raw/master/Shille
 current_cape <- 30.7
 
 # Return calculation for the next i years
-returns <- as.data.frame(matrix(nrow = 1774))
+returns <- as.data.frame(matrix(nrow = nrow(full_data)))
 for(i in 1:20){
   temp <- (lead(full_data$index, 12 * i) / full_data$index) ^ (1 / i)
   returns <- cbind(returns, temp)
@@ -14,13 +14,13 @@ for(i in 1:20){
 returns <- returns %>% select(-V1)  
 
 # CAPE calculation for the next i years
-capes <- as.data.frame(matrix(nrow = 1774))
+capes <- as.data.frame(matrix(nrow = nrow(full_data)))
 temp2 <- NA
 for(i in 1:20){
   for(j in 1:I(nrow(full_data) - 12)){
     temp2[j + i * 12] <- full_data$Price[j + i * 12] / mean(full_data$Earnings[j:I(j + i * 12 - 1)])
   }
-  temp2 <- temp2[1:1774]
+  temp2 <- temp2[1:nrow(full_data)]
   capes <- cbind(capes, temp2)
   temp2 <- NA
   colnames(capes)[i + 1] <- paste0("cape_", i)
